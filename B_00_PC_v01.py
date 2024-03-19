@@ -1,5 +1,6 @@
 import pandas
 from datetime import date
+import re
 
 
 # checks user response is a valid response based on a list of options
@@ -27,4 +28,25 @@ def string_check(question, answer_list, short_answer, error):
                 print()
                 break
 
+
+# Converts units
+def unit_converter(unit, amount):
+
+    # dict of units and what to multiply the
+    # original amount by convert to ideal unit
+    unit_dict = {
+        "mg": 0.001,
+        "g": 1,
+        "kg": 1000,
+        "ml": 0.001,
+        "l": 1,
+        "kl": 1000
+    }
+
+    if unit in ["mg", "g", "kg"]:
+        final_unit = "g"
+    else:
+        final_unit = "l"
+    converted = amount * float(f"{unit_dict.get(unit)}")
+    return f"{converted}{final_unit}"
 
