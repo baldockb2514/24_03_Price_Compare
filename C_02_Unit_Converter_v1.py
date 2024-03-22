@@ -56,6 +56,7 @@ while True:
         # get the original item (amount + unit or just amount)
         print()
         get_item = input("Please enter the weight/amount: ").replace(" ", "").replace(",", "")
+        # if the user doesn't input ab
         if get_item == "" or get_item[0] == "-":
             print("Please enter an amount more than 0")
             continue
@@ -108,6 +109,7 @@ while True:
                                         ["kilogram", "kilolitre", "kilograms", "kilolitres", "xxx"],
                                         ["kg", "kl", "kg", "kl", "xxx"], "Please enter either kg or kl")
 
+            # if the unit is in a long form(kilograms) get it's short form(kg)
             if len(get_unit) > 2:
                 get_unit = get_unit.replace("s", "")
                 get_unit_long = ["milligram", "gram", "kilogram", "millilitre", "litre", "kilolitre", "xxx"]
