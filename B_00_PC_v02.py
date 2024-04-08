@@ -10,7 +10,7 @@ def string_check(question, answer_list, short_response, error, replace_s):
         # make response lowercase and get rid of spaces
         response = input(question).lower().replace(" ", "")
 
-        if replace_s == "yes":
+        if replace_s == "y":
             if response[-1] == "s":
                 response = response[:-1]
 
@@ -112,6 +112,7 @@ want_instructions = string_check("Would you like to see the instructions?: ",
                                  ["yes", "no"], "1", "Please answer yes/no", "n")
 if want_instructions == "yes":
     show_instructions()
+
 
 while True:
     product_name = ""
