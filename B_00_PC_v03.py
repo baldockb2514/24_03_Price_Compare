@@ -4,19 +4,14 @@ import re
 
 
 # checks user response is a valid response based on a list of options
-def string_check(question, answer_list, short_response, error, replace_s):
+def string_check(question, answer_list, short_response, error):
     valid = False
     while not valid:
         # make response lowercase and get rid of spaces
         response = input(question).lower().replace(" ", "")
 
-        if replace_s == "y":
-            if response[-1] == "s":
-                response = response[:-1]
-
         while True:
             for item in answer_list:
-
                 try:
                     short_response = int(short_response)
                     if response == item[:short_response] or response == item:
@@ -36,7 +31,6 @@ def string_check(question, answer_list, short_response, error, replace_s):
 
 # Converts units
 def unit_converter(unit, amount):
-
     # dict of units and what to multiply the
     # original amount by convert to ideal unit
     unit_dict = {
@@ -95,62 +89,42 @@ weight_list = []
 price_list = []
 converted_list = []
 price_weight_list = []
+# for finding reccomendation
+price_weight_number = []
 
 # create unit lists for checking units
 full_unit = ["milligram", "gram", "kilogram", "xxx", "millilitre", "litre", "kilolitre"]
 short_unit = ["mg", "g", "kg", "xxx", "ml", "l", "kl"]
 
 product_dict = {
-    "Name": name_list,
+    "Product": name_list,
     "Weight": weight_list,
     "Price": price_list,
-    "Converted": converted_list,
-    "Price/Weight": price_weight_list
+    "  Converted": converted_list,
+    "  Price/Weight": price_weight_list
 }
 # ask if the user wants to see instructions
 want_instructions = string_check("Would you like to see the instructions?: ",
-                                 ["yes", "no"], "1", "Please answer yes/no", "n")
+                                 ["yes", "no"], "1", "Please answer yes/no")
 if want_instructions == "yes":
     show_instructions()
 
-# Get the name of the Frame
-while True:
-    frame_title = input("What items are you comparing?(ie. Milk, Cookies, etc.): ")
-    if frame_title.replace(" ", "") == "":
-        print("Please enter an item.")
-        continue
-    else:
-        # Get the date
-        today = date.today()
-        # Get day, month, and year as individual strings
-        day = today.strftime("%d")
-        month = today.strftime("%m")
-        year = today.strftime("%Y")
-        # Format date as one string
-        format_date = f"{day}/{month}/{year}"
-        # format frame title
-        frame_title = f"\n***** Price Compare - {frame_title} - {format_date} *****\n"
-        break
+# Get the user's budget
+budget = num_check("What is your budget in dollars?(press <enter> if you have no budget): $",
+                   "Please enter a number more than 0.", "y")
 
 # Loop to get product info
 product_name = ""
 while product_name != "xxx":
     # Get the product name
-    product_name = input("What is the name of the product?")
+    product_name = input("\nWhat is the name of the product?")
     if product_name.replace(" ", "") == "":
         print("Your product name cannot be blank.")
         continue
     elif product_name == "xxx":
         break
-    else:
-        name_list.append(product_name)
-
-    # Get the user's budget
-    budget = num_check("What is your budget in dollars?(press <enter> if you have no budget): $",
-                       "Please enter a number more than 0.", "y")
 
     # get the original item (amount + unit or just amount)
-    print()
     get_item = input("Please enter the weight of the product: ").replace(" ", "").replace(",", "")
     # if the user doesn't input an amount, or their amount is negative, output error
     if get_item == "" or get_item[0] == "-":
@@ -163,7 +137,7 @@ while product_name != "xxx":
     try:
         get_amount = float(get_item)
         get_unit = string_check("Weight unit? ", short_unit, full_unit,
-                                "Please answer mg/g/kg or xxx to quit.", "y")
+                                "Please answer mg/g/kg or xxx to quit.")
         if get_unit == "xxx":
             break
 
@@ -195,13 +169,13 @@ while product_name != "xxx":
         # Get unit from item and turn to string
         get_unit = re.findall(r'[a-zA-Z]+', get_item)
         get_unit = f"{get_unit[0]}"
-        get_unit = get_unit.replace("s", "")
+        get_unit = get_unit.replace("s", "").lower()
 
         if get_unit not in short_unit and get_unit not in full_unit:
             # if their unit is kilo, ask for the user to specify
             if get_unit == "kilo":
                 get_unit = string_check("do you mean kilograms or kilolitres?: ", ["kilogram", "xxx", "kilolitre"],
-                                        ["kg", "xxx", "kl"], "Please enter either kg or kl", "y")
+                                        ["kg", "xxx", "kl"], "Please enter either kg or kl")
             # if the unit is not valid, output error
             else:
                 print("Please enter a number with a valid unit(mg/g/kg or ml/l/kl).")
@@ -216,19 +190,18 @@ while product_name != "xxx":
         if get_unit == "xxx":
             break
 
-    # us function to convert and print
+    # format for list
+    weight = f"{get_amount}{get_unit}"
+    # use function to convert and print
     converted_item = unit_converter(get_unit, get_amount)
+    # get the different variables that the function returned
+    converted_weight = converted_item[0]
+    converted_unit = converted_item[1]
+    # if the second weight uses a different weight category i.e. 1- 2g 2- 2l, output error
     if len(weight_list) > 0:
         if converted_item[-1] != (weight_list[0])[-1]:
             print("please enter an item with the same unit type as your first item.")
             continue
-
-    # !!!! MOVE TO LATER IN CODE !!!!
-    weight_list.append(converted_item)
-    print(converted_item)
-    converted_weight = converted_item[0]
-    converted_unit = converted_item[1]
-    converted_product = f"{converted_weight}{converted_unit}"
 
     # Get price of Product
     price = num_check("What is the price of your product?: $", "Please enter a number more than 0.", "n")
@@ -237,5 +210,58 @@ while product_name != "xxx":
             "This item is out of your budget."
             continue
 
-    # Get the price/unit
+    # Get the price/weight
     price_weight = price / converted_weight
+
+    # format for lists
+    price = f"${price:.2f}"
+    weight = f"{get_amount}{get_unit}"
+    converted_product = f"{converted_weight}{converted_unit}"
+
+    # Add to lists
+    if product_name != "xxx":
+        name_list.append(product_name)
+    weight_list.append(weight)
+    converted_list.append(converted_product)
+    price_list.append(price)
+    price_weight_list.append(f"{price_weight:.2f}/{converted_unit}")
+    price_weight_number.append(price_weight)
+
+# get recommendation
+rec_price = min(price_weight_number)
+# create string repeat
+if price_weight_number.count(rec_price) > 1:
+    rec_string = f"The following items are all equally the best deal, which is ${rec_price} per 1{converted_unit}.\n"
+    rec_multiple = []
+    for rec_item in price_weight_number:
+        if rec_item == rec_price:
+            rec_place = price_weight_number.index(rec_item)
+            rec_name = name_list[rec_place]
+            rec_string += f"|   {rec_name}\n"
+else:
+    rec_place = price_weight_number.index(rec_price)
+    rec_name = product_name[rec_place]
+    rec_string = f"{rec_name} is the best deal, being ${rec_price} per 1{converted_unit}, "
+    f"which is cheaper than the other products.\n"
+
+
+# Get the date
+today = date.today()
+# Get day, month, and year as individual strings
+day = today.strftime("%d")
+month = today.strftime("%m")
+year = today.strftime("%Y")
+# Format date as one string
+format_date = f"{day}/{month}/{year}"
+
+# format frame title
+frame_title = f"\n***** Price Compare - {format_date} *****\n"
+
+compare_frame = pandas.DataFrame(product_dict)
+compare_frame = compare_frame.set_index('Product')
+print(frame_title)
+if budget != "":
+    print(f"Budget: {budget}")
+print(compare_frame)
+print()
+print(rec_string)
