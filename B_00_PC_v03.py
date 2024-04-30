@@ -77,8 +77,7 @@ def num_check(question, error, allow_blank):
 
 # Shows instructions
 def show_instructions():
-    print('''\n 
-Instructions go here''')
+    print('''**** Instructions ****''')
 
 
 # Main routine starts here
@@ -89,8 +88,11 @@ weight_list = []
 price_list = []
 converted_list = []
 price_weight_list = []
-# for finding reccomendation
+# for finding recommendation
 price_weight_number = []
+
+# Create strings
+converted_unit = ""
 
 # create unit lists for checking units
 full_unit = ["milligram", "gram", "kilogram", "xxx", "millilitre", "litre", "kilolitre"]
@@ -117,7 +119,7 @@ budget = num_check("What is your budget in dollars?(press <enter> if you have no
 product_name = ""
 while product_name != "xxx":
     # Get the product name
-    product_name = input("\nWhat is the name of the product?")
+    product_name = input("\nWhat is the name of the product? ")
     if product_name.replace(" ", "") == "":
         print("Your product name cannot be blank.")
         continue
@@ -207,7 +209,7 @@ while product_name != "xxx":
     price = num_check("What is the price of your product?: $", "Please enter a number more than 0.", "n")
     if budget != "":
         if price > budget:
-            "This item is out of your budget."
+            print("This item is out of your budget.")
             continue
 
     # Get the price/weight
@@ -224,20 +226,20 @@ while product_name != "xxx":
     weight_list.append(weight)
     converted_list.append(converted_product)
     price_list.append(price)
-    price_weight_list.append(f"{price_weight:.2f}/{converted_unit}")
+    price_weight_list.append(f"${price_weight:.2f}/{converted_unit}")
     price_weight_number.append(price_weight)
 
 # get recommendation
 rec_price = min(price_weight_number)
-# create string repeat
+# if multiple items are equally the best deal, print all
 if price_weight_number.count(rec_price) > 1:
-    rec_string = f"The following items are all equally the best deal, which is ${rec_price} per 1{converted_unit}.\n"
+    rec_string = f"The following items are all equally the best deal, which is ${rec_price:.2f} " \
+                 f"per 1{converted_unit}.\n"
     rec_multiple = []
-    for rec_item in price_weight_number:
-        if rec_item == rec_price:
-            rec_place = price_weight_number.index(rec_item)
-            rec_name = name_list[rec_place]
-            rec_string += f"|   {rec_name}\n"
+    for rec_item in name_list:
+        rec_place = name_list.index(rec_item)
+        if price_weight_number[rec_place] == rec_price:
+            rec_string += f"|   {rec_item}\n"
 else:
     rec_place = price_weight_number.index(rec_price)
     rec_name = product_name[rec_place]
