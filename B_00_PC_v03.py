@@ -65,10 +65,7 @@ def num_check(question, error, allow_blank):
             return response
 
         except ValueError:
-            # allow 'xxx' as a valid response
-            if response == "xxx":
-                return response
-            elif allow_blank == "n" or response != "":
+            if allow_blank == "n" or response != "":
                 print(error)
                 continue
             else:
@@ -115,119 +112,131 @@ if want_instructions == "yes":
 budget = num_check("What is your budget in dollars?(press <enter> if you have no budget): $",
                    "Please enter a number more than 0.", "y")
 
-# Loop to get product info
-product_name = ""
-while product_name != "xxx":
-    # Get the product name
-    product_name = input("\nWhat is the name of the product? ")
-    if product_name.replace(" ", "") == "":
-        print("Your product name cannot be blank.")
-        continue
-    elif product_name == "xxx":
-        break
-
-    # get the original item (amount + unit or just amount)
-    get_item = input("Please enter the weight of the product: ").replace(" ", "").replace(",", "")
-    # if the user doesn't input an amount, or their amount is negative, output error
-    if get_item == "" or get_item[0] == "-":
-        print("Please enter an amount more than 0")
-        continue
-    elif get_item == "xxx":
-        break
-
-    # if they didn't input a unit, ask for unit
-    try:
-        get_amount = float(get_item)
-        get_unit = string_check("Weight unit? ", short_unit, full_unit,
-                                "Please answer mg/g/kg or xxx to quit.")
-        if get_unit == "xxx":
+while True:
+    # Loop to get product info
+    product_name = ""
+    while product_name != "xxx":
+        # Get the product name
+        product_name = input("\nWhat is the name of the product? ")
+        # don't allow duplicate names or blank names
+        if product_name in name_list:
+            print("Please enter a unique name for every product.")
+            continue
+        elif product_name.replace(" ", "") == "":
+            print("Your product name cannot be blank.")
+            continue
+            # if exit code entered, break loop
+        elif product_name == "xxx":
             break
 
-    # otherwise,separate amount from unit
-    except ValueError:
-
-        # separate amount from item
-        get_amount = re.findall(r'[0-9]+', get_item)
-
-        # if there is no amount, output error
-        if len(get_amount) == 0:
+        # get the original item (amount + unit or just amount)
+        get_item = input("Please enter the weight of the product: ").replace(" ", "").replace(",", "")
+        # if the user doesn't input an amount, or their amount is negative, output error
+        if get_item == "" or get_item[0] == "-":
             print("Please enter an amount more than 0")
             continue
+        elif get_item == "xxx":
+            break
 
-        # if the list is longer than one, format as a decimal
-        if len(get_amount) == 2:
-            get_amount = f"{get_amount[0]}.{get_amount[1]}"
-        # else, put the list into a string to convert to float
-        else:
-            get_amount = f"{get_amount[0]}"
+        # if they didn't input a unit, ask for unit
+        try:
+            get_amount = float(get_item)
+            get_unit = string_check("Weight unit? ", short_unit, full_unit,
+                                    "Please answer mg/g/kg or xxx to quit.")
+            if get_unit == "xxx":
+                break
 
-        get_amount = float(get_amount)
+        # otherwise,separate amount from unit
+        except ValueError:
 
-        # if the amount is 0, output error
-        if get_amount == 0:
-            print("Please enter an amount more than 0")
-            continue
+            # separate amount from item
+            get_amount = re.findall(r'[0-9]+', get_item)
 
-        # Get unit from item and turn to string
-        get_unit = re.findall(r'[a-zA-Z]+', get_item)
-        get_unit = f"{get_unit[0]}"
-        get_unit = get_unit.replace("s", "").lower()
-
-        if get_unit not in short_unit and get_unit not in full_unit:
-            # if their unit is kilo, ask for the user to specify
-            if get_unit == "kilo":
-                get_unit = string_check("do you mean kilograms or kilolitres?: ", ["kilogram", "xxx", "kilolitre"],
-                                        ["kg", "xxx", "kl"], "Please enter either kg or kl")
-            # if the unit is not valid, output error
-            else:
-                print("Please enter a number with a valid unit(mg/g/kg or ml/l/kl).")
+            # if there is no amount, output error
+            if len(get_amount) == 0:
+                print("Please enter an amount more than 0")
                 continue
 
-        # if the unit is in a long form(kilograms) get it's short form(kg)
-        if len(get_unit) > 2:
-            list_location = full_unit.index(get_unit)
-            get_unit = short_unit[list_location]
+            # if the list is longer than one, format as a decimal
+            if len(get_amount) == 2:
+                get_amount = f"{get_amount[0]}.{get_amount[1]}"
+            # else, put the list into a string to convert to float
+            else:
+                get_amount = f"{get_amount[0]}"
 
-        # if their unit is 'xxx', exit code
-        if get_unit == "xxx":
-            break
+            get_amount = float(get_amount)
 
-    # format for list
-    weight = f"{get_amount}{get_unit}"
-    # use function to convert and print
-    converted_item = unit_converter(get_unit, get_amount)
-    # get the different variables that the function returned
-    converted_weight = converted_item[0]
-    converted_unit = converted_item[1]
-    # if the second weight uses a different weight category i.e. 1- 2g 2- 2l, output error
-    if len(weight_list) > 0:
-        if converted_item[-1] != (weight_list[0])[-1]:
-            print("please enter an item with the same unit type as your first item.")
-            continue
+            # if the amount is 0, output error
+            if get_amount == 0:
+                print("Please enter an amount more than 0")
+                continue
 
-    # Get price of Product
-    price = num_check("What is the price of your product?: $", "Please enter a number more than 0.", "n")
-    if budget != "":
-        if price > budget:
-            print("This item is out of your budget.")
-            continue
+            # Get unit from item and turn to string
+            get_unit = re.findall(r'[a-zA-Z]+', get_item)
+            get_unit = f"{get_unit[0]}"
+            get_unit = get_unit.replace("s", "").lower()
 
-    # Get the price/weight
-    price_weight = price / converted_weight
+            if get_unit not in short_unit and get_unit not in full_unit:
+                # if their unit is kilo, ask for the user to specify
+                if get_unit == "kilo":
+                    get_unit = string_check("do you mean kilograms or kilolitres?: ", ["kilogram", "xxx", "kilolitre"],
+                                            ["kg", "xxx", "kl"], "Please enter either kg or kl")
+                # if the unit is not valid, output error
+                else:
+                    print("Please enter a number with a valid unit(mg/g/kg or ml/l/kl).")
+                    continue
 
-    # format for lists
-    price = f"${price:.2f}"
-    weight = f"{get_amount}{get_unit}"
-    converted_product = f"{converted_weight}{converted_unit}"
+            # if the unit is in a long form(kilograms) get it's short form(kg)
+            if len(get_unit) > 2:
+                list_location = full_unit.index(get_unit)
+                get_unit = short_unit[list_location]
 
-    # Add to lists
-    if product_name != "xxx":
-        name_list.append(product_name)
-    weight_list.append(weight)
-    converted_list.append(converted_product)
-    price_list.append(price)
-    price_weight_list.append(f"${price_weight:.2f}/{converted_unit}")
-    price_weight_number.append(price_weight)
+            # if their unit is 'xxx', exit code
+            if get_unit == "xxx":
+                break
+
+        # format for list
+        weight = f"{get_amount}{get_unit}"
+        # use function to convert and print
+        converted_item = unit_converter(get_unit, get_amount)
+        # get the different variables that the function returned
+        converted_weight = converted_item[0]
+        converted_unit = converted_item[1]
+        # if the second weight uses a different weight category i.e. 1- 2g 2- 2l, output error
+        if len(weight_list) > 0:
+            if converted_item[-1] != (weight_list[0])[-1]:
+                print("please enter an item with the same unit type as your first item.")
+                continue
+
+        # Get price of Product
+        price = num_check("What is the price of your product?: $", "Please enter a number more than 0.", "n")
+        if budget != "":
+            if price > budget:
+                print("This item is out of your budget.")
+                continue
+
+        # Get the price/weight
+        price_weight = price / converted_weight
+
+        # format for lists
+        price = f"${price:.2f}"
+        weight = f"{get_amount}{get_unit}"
+        converted_product = f"{converted_weight}{converted_unit}"
+
+        # Add to lists
+        if product_name != "xxx":
+            name_list.append(product_name)
+        weight_list.append(weight)
+        converted_list.append(converted_product)
+        price_list.append(price)
+        price_weight_list.append(f"${price_weight:.2f}/{converted_unit}")
+        price_weight_number.append(price_weight)
+
+    if len(name_list) <= 0:
+        print("Please enter at least one product.")
+        continue
+    else:
+        break
 
 # get recommendation
 rec_price = min(price_weight_number)
@@ -242,7 +251,7 @@ if price_weight_number.count(rec_price) > 1:
             rec_string += f"|   {rec_item}\n"
 else:
     rec_place = price_weight_number.index(rec_price)
-    rec_name = product_name[rec_place]
+    rec_name = name_list[rec_place]
     rec_string = f"{rec_name} is the best deal, being ${rec_price} per 1{converted_unit}, "
     f"which is cheaper than the other products.\n"
 
