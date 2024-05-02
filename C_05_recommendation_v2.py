@@ -1,11 +1,12 @@
 # find the best price/weight
 
-# set up strings
+# set up lists and strings
 names = []
 prices = []
 weights = []
 price_weights = []
 price_weights_strings = []
+product_string = "\n------ Products ------"
 
 unit = input("What is the weight unit of the products? ")
 print("\n-------------------")
@@ -31,12 +32,12 @@ while True:
     price_weights.append(price_weight)
     price_weight_string = f"${price_weight:.2f}/1{unit}"
     price_weights_strings.append(price_weight_string)
+    product_string += f"\n{name} - ${price:.2f} - {weight}{unit} - {price_weight_string}"
     continue
 
 print()
-for item in names:
-    get_place = names.index(item)
-    print(f"{item} - ${prices[get_place]:.2f} - {weights[get_place]}{unit} - {price_weights_strings[get_place]}")
+
+print(product_string)
 
 rec = min(price_weights)
 
@@ -51,7 +52,7 @@ if price_weights.count(rec) > 1:
             rec_string += f"\n|   {rec_item}"
 else:
     rec_place = price_weights.index(rec)
-    rec_string = f"\nThe best deal is {names[rec_place]}. It only costs {price_weights_strings[rec_place]}, "
-    f"which costs less than all other items per {unit}."
+    rec_string = f"\nThe best deal is {names[rec_place]}. It only costs {price_weights_strings[rec_place]}, " \
+                 f"which costs less than all other items per {unit}."
 
 print(rec_string)
