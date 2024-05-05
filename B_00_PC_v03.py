@@ -177,14 +177,9 @@ while True:
             get_unit = get_unit.replace("s", "").lower()
 
             if get_unit not in short_unit and get_unit not in full_unit:
-                # if their unit is kilo, ask for the user to specify
-                if get_unit == "kilo":
-                    get_unit = string_check("do you mean kilograms or kilolitres?: ", ["kilogram", "xxx", "kilolitre"],
-                                            ["kg", "xxx", "kl"], "Please enter either kg or kl")
                 # if the unit is not valid, output error
-                else:
-                    print("Please enter a number with a valid unit(mg/g/kg or ml/l/kl).")
-                    continue
+                print("Please enter a number with a valid unit(mg/g/kg or ml/l/kl).")
+                continue
 
             # if the unit is in a long form(kilograms) get it's short form(kg)
             if len(get_unit) > 2:
@@ -201,12 +196,12 @@ while True:
         converted_item = unit_converter(get_unit, get_amount)
         # get the different variables that the function returned
         converted_weight = converted_item[0]
-        converted_unit = converted_item[1]
         # if the second weight uses a different weight category i.e. 1- 2g 2- 2l, output error
         if len(weight_list) > 0:
             if converted_item[-1] != (weight_list[0])[-1]:
-                print("please enter an item with the same unit type as your first item.")
+                print("Please enter an item with the same unit type as your first item.")
                 continue
+        converted_unit = converted_item[1]
 
         # Get price of Product
         price = num_check("What is the price of your product?: $", "Please enter a number more than 0.", "n")
