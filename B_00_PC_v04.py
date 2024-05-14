@@ -1,4 +1,4 @@
-# v4 - import and apply currency function
+# v4 - import and apply currency function, integrate write to file
 import pandas
 from datetime import date
 import re
@@ -75,7 +75,23 @@ def num_check(question, error, allow_blank):
 
 # Shows instructions
 def show_instructions():
-    print('''**** Instructions ****''')
+    print('''\n 
+***** Instructions *****
+
+For each product, enter ...
+- The products name (can't be blank)
+- The products weight (include unit)
+- The products price in dollars (must be more than $0.00)
+
+When you have entered all the users, press 'xxx' to quit.
+
+The program will then display all the ticket details
+including the cost of each ticket, the total cos
+and the total profit.
+
+This information will also be automatically written to a text file
+
+**************************''')
 
 
 # currency formatting function
@@ -108,8 +124,8 @@ short_unit = ["mg", "g", "kg", "xxx", "ml", "l", "kl"]
 product_dict = {
     "Product": name_list,
     "Weight": weight_list,
-    "Price": price_list,
     "  Converted": converted_list,
+    "  Price": price_list,
     "  Price/Weight": price_weight_strings
 }
 # ask if the user wants to see instructions
@@ -246,9 +262,10 @@ while True:
 
 # get recommendation
 rec_price = min(price_weight_numbers)
+rec_price_string = currency(rec_price)
 # if multiple items are equally the best deal, print all
 if price_weight_numbers.count(rec_price) > 1:
-    rec_string = f"The following items are all equally the best deal, which is ${rec_price:.2f} " \
+    rec_string = f"The following items are all equally the best deal, which is {rec_price_string} " \
                  f"per 1{converted_unit}.\n"
     rec_multiple = []
     for rec_item in name_list:
@@ -258,7 +275,7 @@ if price_weight_numbers.count(rec_price) > 1:
 else:
     rec_place = price_weight_numbers.index(rec_price)
     rec_name = name_list[rec_place]
-    rec_string = f"{rec_name} is the best deal, being ${rec_price} per 1{converted_unit}, "
+    rec_string = f"{rec_name} is the best deal, being {rec_price_string} per 1{converted_unit}, "
     f"which is cheaper than the other products.\n"
 
 
@@ -268,17 +285,41 @@ today = date.today()
 day = today.strftime("%d")
 month = today.strftime("%m")
 year = today.strftime("%Y")
-# Format date as one string
+
+# Format date heading and filename
 format_date = f"{day}/{month}/{year}"
+filename = f"PC_{year}_{month}_{day}"
 
-# format frame title
-frame_title = f"\n***** Price Compare - {format_date} *****\n"
-
+# Create frame, set index
 compare_frame = pandas.DataFrame(product_dict)
 compare_frame = compare_frame.set_index('Product')
-print(frame_title)
+
+# create strings for printing...
+heading = f"\n***** Price Compare - {format_date} *****\n"
+rec_title = "\n--- Recommended Item/s: ---"
 if budget != "":
-    print(f"Budget: {budget}")
-print(compare_frame)
-print()
-print(rec_string)
+    budget_string = f"Budget: {currency(budget)}\n"
+else:
+    budget_string = "No budget.\n"
+
+# Change frame to s string so that I can export it to file
+compare_frame_string = pandas.DataFrame.to_string(compare_frame)
+
+# list holding content to print / write to file
+to_write = [heading, budget_string, compare_frame_string, rec_title, rec_string]
+
+# print output
+for frame_item in to_write:
+    print(frame_item)
+
+# write output to file
+# create file to hold data (add .txt extension)
+write_to = f"{filename}.txt"
+text_file = open(write_to, "w+")
+
+for file_item in to_write:
+    text_file.write(file_item)
+    text_file.write("\n")
+
+# close file
+text_file.close()
