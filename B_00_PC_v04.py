@@ -83,12 +83,16 @@ For each product, enter ...
 - The products weight (include unit)
 - The products price in dollars (must be more than $0.00)
 
-When you have entered all the users, press 'xxx' to quit.
+There are two categories of units the program accepts. They are mg/g/kg and ml/l/kl.
+You can only use one category of unit for each run through of the program.
 
-The program will then display all the ticket details
-including the cost of each ticket, the total cos
-and the total profit.
+When you have entered all the products, press 'xxx' to quit.
 
+The program will then display all the product details,
+including the weight of each product, the converted weight, the price of each product,
+and the price per one g/l for each product.
+
+The program will then recommend one or more item/s based on their price/weight
 This information will also be automatically written to a text file
 
 **************************''')
@@ -246,6 +250,7 @@ while True:
         price_weight_string = f"{currency(price_weight)}/{converted_unit}"
 
         # Add to lists
+        # don't add exit code to name list
         if product_name != "xxx":
             name_list.append(product_name)
         weight_list.append(weight)
