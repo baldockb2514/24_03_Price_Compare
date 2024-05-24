@@ -75,7 +75,7 @@ def num_check(question, error, allow_blank):
 
 # Shows instructions
 def show_instructions():
-    print('''\n 
+    print(''' 
 ***** Instructions *****
 
 For each product, enter ...
@@ -95,7 +95,7 @@ and the price per one g/l for each product.
 The program will then recommend one or more item/s based on their price/weight
 This information will also be automatically written to a text file
 
-**************************''')
+**************************\n''')
 
 
 # currency formatting function
@@ -224,13 +224,13 @@ while True:
         weight = f"{get_amount}{get_unit}"
         # use function to convert and print
         converted_item = unit_converter(get_unit, get_amount)
-        # get the different variables that the function returned
-        converted_weight = converted_item[0]
         # if the second weight uses a different weight category i.e. 1- 2g 2- 2l, output error
         if len(weight_list) > 0:
             if converted_item[-1] != (weight_list[0])[-1]:
                 print("Please enter an item with the same unit type as your first item.")
                 continue
+        # get the different variables that the function returned
+        converted_weight = converted_item[0]
         converted_unit = converted_item[1]
 
         # Get price of Product
@@ -272,10 +272,11 @@ rec_price_string = currency(rec_price)
 if price_weight_numbers.count(rec_price) > 1:
     rec_string = f"The following items are all equally the best deal, which is {rec_price_string} " \
                  f"per 1{converted_unit}.\n"
-    rec_multiple = []
+    # check what items are the best deal
     for rec_item in name_list:
         rec_place = name_list.index(rec_item)
         if price_weight_numbers[rec_place] == rec_price:
+            # add items to string
             rec_string += f"|   {rec_item}\n"
 else:
     rec_place = price_weight_numbers.index(rec_price)
@@ -317,11 +318,11 @@ to_write = [heading, budget_string, compare_frame_string, rec_title, rec_string]
 for frame_item in to_write:
     print(frame_item)
 
-# write output to file
 # create file to hold data (add .txt extension)
 write_to = f"{filename}.txt"
 text_file = open(write_to, "w+")
 
+# write output to file
 for file_item in to_write:
     text_file.write(file_item)
     text_file.write("\n")
