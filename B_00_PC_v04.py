@@ -120,6 +120,8 @@ price_weight_numbers = []
 
 # Create strings
 converted_unit = ""
+get_weight = ""
+get_unit = ""
 
 # create unit lists for checking units
 full_unit = ["milligram", "gram", "kilogram", "xxx", "millilitre", "litre", "kilolitre"]
@@ -142,6 +144,7 @@ if want_instructions == "yes":
 budget = num_check("What is your budget in dollars?(press <enter> if you have no budget): $",
                    "Please enter a number more than 0.", "y")
 
+
 while True:
     # Loop to get product info
     product_name = ""
@@ -159,71 +162,71 @@ while True:
         elif product_name == "xxx":
             break
 
-        # get the original item (amount + unit or just amount)
-        get_item = input("Please enter the weight of the product: ").replace(" ", "").replace(",", "")
-        # if the user doesn't input an amount, or their amount is negative, output error
-        if get_item == "" or get_item[0] == "-":
-            print("Please enter an amount more than 0")
-            continue
-        elif get_item == "xxx":
+        while True:
+            # get the original item (amount + unit or just amount)
+            get_item = input("Please enter the weight of the product: ").replace(" ", "").replace(",", "")
+            # if the user doesn't input an amount, or their amount is negative, output error
+            if get_item == "" or get_item[0] == "-":
+                print("Please enter an amount more than 0")
+                continue
+            elif get_item == "xxx":
+                break
+
+            # if they didn't input a unit, ask for unit
+            try:
+                get_weight = float(get_item)
+                if get_weight <= 0:
+                    print("Please enter an amount more than 0")
+                    continue
+                get_unit = string_check("Weight unit? ", short_unit, full_unit,
+                                        "Please answer mg/g/kg, ml/l/kl, or xxx to quit.")
+                break
+
+            # otherwise,separate amount from unit
+            except ValueError:
+
+                # separate amount from item
+                get_weight = re.findall(r'[0-9]+', get_item)
+
+                # if there is no amount, output error
+                if len(get_weight) == 0:
+                    print("Please enter an amount more than 0")
+                    continue
+
+                # if the list is longer than one, format as a decimal
+                if len(get_weight) == 2:
+                    get_weight = f"{get_weight[0]}.{get_weight[1]}"
+                # else, put the list into a string to convert to float
+                else:
+                    get_weight = f"{get_weight[0]}"
+
+                get_weight = float(get_weight)
+
+                # if the amount is 0, output error
+                if get_weight == 0:
+                    print("Please enter an amount more than 0")
+                    continue
+
+                # Get unit from item and turn to string
+                get_unit = re.findall(r'[a-zA-Z]+', get_item)
+                get_unit = f"{get_unit[0]}"
+                get_unit = get_unit.replace("s", "").lower()
+
+                if get_unit not in short_unit and get_unit not in full_unit:
+                    # if the unit is not valid, output error
+                    print("Please enter a number with a valid unit(mg/g/kg or ml/l/kl).")
+                    continue
+
+                # if the unit is in a long form(kilograms) get it's short form(kg)
+                if len(get_unit) > 2:
+                    list_location = full_unit.index(get_unit)
+                    get_unit = short_unit[list_location]
             break
 
-        # if they didn't input a unit, ask for unit
-        try:
-            get_amount = float(get_item)
-            get_unit = string_check("Weight unit? ", short_unit, full_unit,
-                                    "Please answer mg/g/kg or xxx to quit.")
-            if get_unit == "xxx":
-                break
-
-        # otherwise,separate amount from unit
-        except ValueError:
-
-            # separate amount from item
-            get_amount = re.findall(r'[0-9]+', get_item)
-
-            # if there is no amount, output error
-            if len(get_amount) == 0:
-                print("Please enter an amount more than 0")
-                continue
-
-            # if the list is longer than one, format as a decimal
-            if len(get_amount) == 2:
-                get_amount = f"{get_amount[0]}.{get_amount[1]}"
-            # else, put the list into a string to convert to float
-            else:
-                get_amount = f"{get_amount[0]}"
-
-            get_amount = float(get_amount)
-
-            # if the amount is 0, output error
-            if get_amount == 0:
-                print("Please enter an amount more than 0")
-                continue
-
-            # Get unit from item and turn to string
-            get_unit = re.findall(r'[a-zA-Z]+', get_item)
-            get_unit = f"{get_unit[0]}"
-            get_unit = get_unit.replace("s", "").lower()
-
-            if get_unit not in short_unit and get_unit not in full_unit:
-                # if the unit is not valid, output error
-                print("Please enter a number with a valid unit(mg/g/kg or ml/l/kl).")
-                continue
-
-            # if the unit is in a long form(kilograms) get it's short form(kg)
-            if len(get_unit) > 2:
-                list_location = full_unit.index(get_unit)
-                get_unit = short_unit[list_location]
-
-            # if their unit is 'xxx', exit code
-            if get_unit == "xxx":
-                break
-
         # format for list
-        weight = f"{get_amount}{get_unit}"
+        weight = f"{get_weight}{get_unit}"
         # use function to convert and print
-        converted_item = unit_converter(get_unit, get_amount)
+        converted_item = unit_converter(get_unit, get_weight)
         # if the second weight uses a different weight category i.e. 1- 2g 2- 2l, output error
         if len(weight_list) > 0:
             if converted_item[-1] != (weight_list[0])[-1]:
@@ -245,7 +248,7 @@ while True:
 
         # format for lists
         price = currency(price)
-        weight = f"{get_amount}{get_unit}"
+        weight = f"{get_weight}{get_unit}"
         converted_product = f"{converted_weight}{converted_unit}"
         price_weight_string = f"{currency(price_weight)}/{converted_unit}"
 
@@ -301,12 +304,12 @@ compare_frame = pandas.DataFrame(product_dict)
 compare_frame = compare_frame.set_index('Product')
 
 # create strings for printing...
-heading = f"\n***** Price Compare - {format_date} *****\n"
+heading = f"\n***** Price Compare - {format_date} *****"
 rec_title = "\n--- Recommended Item/s: ---"
 if budget != "":
-    budget_string = f"Budget: {currency(budget)}\n"
+    budget_string = f"\nBudget: {currency(budget)}\n"
 else:
-    budget_string = "No budget.\n"
+    budget_string = ""
 
 # Change frame to s string so that I can export it to file
 compare_frame_string = pandas.DataFrame.to_string(compare_frame)
