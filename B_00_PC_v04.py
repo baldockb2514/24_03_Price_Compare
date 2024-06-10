@@ -4,7 +4,7 @@ from datetime import date
 import re
 
 
-# checks user response is a valid response based on a list of options
+# checks user response is a valid response based on a list of options(allow 's' at the end of correct
 def string_check(question, answer_list, short_response, error):
     valid = False
     while not valid:
@@ -13,20 +13,22 @@ def string_check(question, answer_list, short_response, error):
 
         while True:
             for item in answer_list:
+                # in short_response is a number, check for that amount of first letters
                 try:
                     short_response = int(short_response)
                     if response == item[:short_response] or response == item:
                         return item
 
+                # otherwise, check if the response is in the corresponding short list
                 except TypeError:
                     list_spot = answer_list.index(item)
-                    if response == short_response[list_spot] or response == item:
+                    if response == short_response[list_spot] or response == item or \
+                            response == f"{short_response[list_spot]}s":
                         return item
 
             # If not, print error
             else:
                 print(error)
-                print()
                 break
 
 
@@ -51,7 +53,7 @@ def unit_converter(unit, amount):
     return [converted, final_unit]
 
 
-# Check that a float is more than 0 or 'xxx' or ""
+# Check that a float is more than 0 or ""
 def num_check(question, error, allow_blank):
     while True:
 
@@ -123,6 +125,10 @@ converted_unit = ""
 get_weight = ""
 get_unit = ""
 
+# Create unit error strings
+litre_er = "ml/l/kl"
+gram_units = "mg/g/kg"
+
 # create unit lists for checking units
 full_unit = ["milligram", "gram", "kilogram", "xxx", "millilitre", "litre", "kilolitre"]
 short_unit = ["mg", "g", "kg", "xxx", "ml", "l", "kl"]
@@ -149,6 +155,15 @@ while True:
     # Loop to get product info
     product_name = ""
     while product_name != "xxx":
+
+        # Create custom unit error strings
+        if len(name_list) <= 0:
+            unit_error = "Please enter a valid unit(mg/g/kg or ml/l/kl)."
+        elif converted_list[-1] == "g":
+            unit_error = "Please enter a valid unit(mg/g/kg)."
+        else:
+            unit_error = "Please enter a valid unit(ml/l/kl)."
+
         # Get the product name
         product_name = input("\nWhat is the name of the product? ")
         # don't allow duplicate names or blank names
@@ -163,14 +178,12 @@ while True:
             break
 
         while True:
-            # get the original item (amount + unit or just amount)
+            # get the original weight (amount + unit or just amount), get rid of spaces and commas
             get_item = input("Please enter the weight of the product: ").replace(" ", "").replace(",", "")
-            # if the user doesn't input an amount, or their amount is negative, output error
+            # if the user doesn't input a number, or their number is negative, output error
             if get_item == "" or get_item[0] == "-":
                 print("Please enter an amount more than 0")
                 continue
-            elif get_item == "xxx":
-                break
 
             # if they didn't input a unit, ask for unit
             try:
@@ -178,8 +191,9 @@ while True:
                 if get_weight <= 0:
                     print("Please enter an amount more than 0")
                     continue
+                # Create error strings
                 get_unit = string_check("Weight unit? ", short_unit, full_unit,
-                                        "Please answer mg/g/kg, ml/l/kl, or xxx to quit.")
+                                        unit_error)
                 break
 
             # otherwise,separate amount from unit
@@ -214,7 +228,7 @@ while True:
 
                 if get_unit not in short_unit and get_unit not in full_unit:
                     # if the unit is not valid, output error
-                    print("Please enter a number with a valid unit(mg/g/kg or ml/l/kl).")
+                    print(unit_error)
                     continue
 
                 # if the unit is in a long form(kilograms) get it's short form(kg)
@@ -225,12 +239,15 @@ while True:
 
         # format for list
         weight = f"{get_weight}{get_unit}"
+        if get_unit == "xxx":
+            continue
+
         # use function to convert and print
         converted_item = unit_converter(get_unit, get_weight)
         # if the second weight uses a different weight category i.e. 1- 2g 2- 2l, output error
         if len(weight_list) > 0:
             if converted_item[-1] != (weight_list[0])[-1]:
-                print("Please enter an item with the same unit type as your first item.")
+                print(unit_error)
                 continue
         # get the different variables that the function returned
         converted_weight = converted_item[0]
