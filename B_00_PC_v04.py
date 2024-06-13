@@ -53,26 +53,30 @@ def unit_converter(unit, amount):
     return [converted, final_unit]
 
 
-# Check that a float is more than 0 or ""
-def num_check(question, error, allow_blank):
+def num_check(question, error, allowed_string):
     while True:
 
         response = input(question).replace(" ", "")
         try:
+            # Check if response is a number
             response = float(response)
 
+            # Check if response is more than 0
             if response <= 0:
+                # if not, give error and re-ask question
                 print(error)
                 continue
 
             return response
 
         except ValueError:
-            if allow_blank == "n" or response != "":
+            # check if response is valid
+            if response == allowed_string:
+                return response
+            # if not, give error and re-ask question
+            else:
                 print(error)
                 continue
-            else:
-                return response
 
 
 # Shows instructions
@@ -133,6 +137,7 @@ gram_units = "mg/g/kg"
 full_unit = ["milligram", "gram", "kilogram", "xxx", "millilitre", "litre", "kilolitre"]
 short_unit = ["mg", "g", "kg", "xxx", "ml", "l", "kl"]
 
+# create dictionary for panda frame
 product_dict = {
     "Product": name_list,
     "Weight": weight_list,
@@ -148,7 +153,7 @@ if want_instructions == "yes":
 
 # Get the user's budget
 budget = num_check("What is your budget in dollars?(press <enter> if you have no budget): $",
-                   "Please enter a number more than 0.", "y")
+                   "Please enter a number more than 0.", "")
 
 
 while True:
@@ -159,7 +164,7 @@ while True:
         # Create custom unit error strings
         if len(name_list) <= 0:
             unit_error = "Please enter a valid unit(mg/g/kg or ml/l/kl)."
-        elif converted_list[-1] == "g":
+        elif (weight_list[0])[-1] == "g":
             unit_error = "Please enter a valid unit(mg/g/kg)."
         else:
             unit_error = "Please enter a valid unit(ml/l/kl)."
@@ -184,6 +189,8 @@ while True:
             if get_item == "" or get_item[0] == "-":
                 print("Please enter an amount more than 0")
                 continue
+            elif get_item == "xxx":
+                break
 
             # if they didn't input a unit, ask for unit
             try:
@@ -194,7 +201,6 @@ while True:
                 # Create error strings
                 get_unit = string_check("Weight unit? ", short_unit, full_unit,
                                         unit_error)
-                break
 
             # otherwise,separate amount from unit
             except ValueError:
@@ -235,27 +241,32 @@ while True:
                 if len(get_unit) > 2:
                     list_location = full_unit.index(get_unit)
                     get_unit = short_unit[list_location]
+
+            # if the second weight uses a different weight category i.e. 1- 2g 2- 2l, output error
+            if len(weight_list) > 0 and get_unit != "xxx":
+                if get_unit[-1] != (weight_list[0])[-1]:
+                    print(unit_error)
+                    continue
+
             break
 
         # format for list
         weight = f"{get_weight}{get_unit}"
-        if get_unit == "xxx":
+        # if they input the exit code instead of a unit, let user input a new item
+        if get_unit == "xxx" or get_item == "xxx":
             continue
 
         # use function to convert and print
         converted_item = unit_converter(get_unit, get_weight)
-        # if the second weight uses a different weight category i.e. 1- 2g 2- 2l, output error
-        if len(weight_list) > 0:
-            if converted_item[-1] != (weight_list[0])[-1]:
-                print(unit_error)
-                continue
         # get the different variables that the function returned
         converted_weight = converted_item[0]
         converted_unit = converted_item[1]
 
         # Get price of Product
-        price = num_check("What is the price of your product?: $", "Please enter a number more than 0.", "n")
-        if budget != "":
+        price = num_check("What is the price of your product?: $", "Please enter a number more than 0.", "xxx")
+        if price == "xxx":
+            continue
+        elif budget != "":
             if price > budget:
                 print("This item is out of your budget.")
                 continue
@@ -271,8 +282,7 @@ while True:
 
         # Add to lists
         # don't add exit code to name list
-        if product_name != "xxx":
-            name_list.append(product_name)
+        name_list.append(product_name)
         weight_list.append(weight)
         converted_list.append(converted_product)
         price_list.append(price)
