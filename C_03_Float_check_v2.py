@@ -1,5 +1,7 @@
+# allow blanks and exit code
+
 # Check that an int/float is more than 0
-def num_check(question, error, allow_blank):
+def num_check(question, error):
     while True:
 
         response = input(question).replace(" ", "")
@@ -15,7 +17,7 @@ def num_check(question, error, allow_blank):
         except ValueError:
             if response == "xxx":
                 return response
-            elif allow_blank == "no" or response != "":
+            elif response != "":
                 print(error)
                 continue
             else:
@@ -28,7 +30,7 @@ while True:
     while True:
         # Ask the user for their budget
         get_budget = num_check("\nWhat is your budget?(press <enter> if you have no budget): $",
-                               "Please enter a number more than 0 (or <enter> for no budget)", "yes")
+                               "Please enter a number more than 0 (or <enter> for no budget)")
         # if the user doesn't enter a budget, assume they have no budget
         if get_budget == "":
             print("No Budget (Program continues)")
@@ -42,7 +44,7 @@ while True:
 
     while True:
 
-        get_cost = num_check("\nHow much does it cost/ $", "Please enter a number more than 0", "no")
+        get_cost = num_check("\nHow much does it cost/ $", "Please enter a number more than 0")
         if get_cost == "xxx":
             print("Loop ends\n********************")
             break
