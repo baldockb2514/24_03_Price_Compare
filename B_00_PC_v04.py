@@ -129,14 +129,6 @@ converted_unit = ""
 get_weight = ""
 get_unit = ""
 
-# Create unit error strings
-litre_er = "ml/l/kl"
-gram_units = "mg/g/kg"
-
-# create unit lists for checking units
-full_unit = ["milligram", "gram", "kilogram", "xxx", "millilitre", "litre", "kilolitre"]
-short_unit = ["mg", "g", "kg", "xxx", "ml", "l", "kl"]
-
 # create dictionary for panda frame
 product_dict = {
     "Product": name_list,
@@ -161,16 +153,27 @@ while True:
     product_name = ""
     while product_name != "xxx":
 
-        # Create custom unit error strings
-        if len(name_list) <= 0:
-            unit_error = "Please enter a valid unit(mg/g/kg or ml/l/kl)."
-        elif (weight_list[0])[-1] == "g":
-            unit_error = "Please enter a valid unit(mg/g/kg)."
+        # set valid units and error messages depending on the unit type being used
+        if len(name_list) > 0:
+            # Get the product name in loop to only suggest xxx when at least one item has been entered
+            product_name = input("\nWhat is the name of the product?(Press xxx to quit): ")
+            # Check what unit type is being used
+            if (weight_list[0])[-1] == "g":
+                full_unit = ["milligram", "gram", "kilogram", "xxx"]
+                short_unit = ["mg", "g", "kg", "xxx"]
+                unit_error = "Please enter a valid unit(mg/g/kg) or xxx to enter a new item."
+            else:
+                full_unit = ["millilitre", "litre", "kilolitre", "xxx"]
+                short_unit = ["ml", "l", "kl", "xxx"]
+                unit_error = "Please enter a valid unit(ml/l/kl) or xxx to enter a new item."
+        # if unit type has not been set yet, use default lists and error
         else:
-            unit_error = "Please enter a valid unit(ml/l/kl)."
+            full_unit = ["milligram", "gram", "kilogram", "xxx", "millilitre", "litre", "kilolitre"]
+            short_unit = ["mg", "g", "kg", "xxx", "ml", "l", "kl"]
+            unit_error = "Please enter a valid unit(mg/g/kg or ml/l/kl) or xxx to enter a new item."
+            # Get the product name in loop to only suggest xxx when at least one item has been entered
+            product_name = input("\nWhat is the name of the product? ")
 
-        # Get the product name
-        product_name = input("\nWhat is the name of the product? ")
         # don't allow duplicate names or blank names
         if product_name in name_list:
             print("Please enter a unique name for every product.")
@@ -187,7 +190,7 @@ while True:
             get_item = input("Please enter the weight of the product: ").replace(" ", "").replace(",", "")
             # if the user doesn't input a number, or their number is negative, output error
             if get_item == "" or get_item[0] == "-":
-                print("Please enter an amount more than 0")
+                print("Please enter an amount more than 0 or xxx to enter a new item")
                 continue
             elif get_item == "xxx":
                 break
@@ -196,7 +199,7 @@ while True:
             try:
                 get_weight = float(get_item)
                 if get_weight <= 0:
-                    print("Please enter an amount more than 0")
+                    print("Please enter an amount more than 0 or xxx to enter a new item")
                     continue
                 # Create error strings
                 get_unit = string_check("Weight unit? ", short_unit, full_unit,
@@ -210,7 +213,7 @@ while True:
 
                 # if there is no amount, output error
                 if len(get_weight) == 0:
-                    print("Please enter an amount more than 0")
+                    print("Please enter an amount more than 0 or xxx to enter a new item")
                     continue
 
                 # if the list is longer than one, format as a decimal
@@ -224,7 +227,7 @@ while True:
 
                 # if the amount is 0, output error
                 if get_weight == 0:
-                    print("Please enter an amount more than 0")
+                    print("Please enter an amount more than 0 or xxx to enter a new item")
                     continue
 
                 # Get unit from item and turn to string
@@ -242,12 +245,6 @@ while True:
                     list_location = full_unit.index(get_unit)
                     get_unit = short_unit[list_location]
 
-            # if the second weight uses a different weight category i.e. 1- 2g 2- 2l, output error
-            if len(weight_list) > 0 and get_unit != "xxx":
-                if get_unit[-1] != (weight_list[0])[-1]:
-                    print(unit_error)
-                    continue
-
             break
 
         # format for list
@@ -263,7 +260,8 @@ while True:
         converted_unit = converted_item[1]
 
         # Get price of Product
-        price = num_check("What is the price of your product?: $", "Please enter a number more than 0.", "xxx")
+        price = num_check("What is the price of your product?: $",
+                          "Please enter a number more than 0 or xxx to enter a new item.", "xxx")
         if price == "xxx":
             continue
         elif budget != "":
