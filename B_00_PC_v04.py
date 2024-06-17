@@ -157,6 +157,7 @@ while True:
         if len(name_list) > 0:
             # Get the product name in loop to only suggest xxx when at least one item has been entered
             product_name = input("\nWhat is the name of the product?(Press xxx to quit): ")
+
             # Check what unit type is being used
             if (weight_list[0])[-1] == "g":
                 full_unit = ["milligram", "gram", "kilogram", "xxx"]
@@ -166,13 +167,15 @@ while True:
                 full_unit = ["millilitre", "litre", "kilolitre", "xxx"]
                 short_unit = ["ml", "l", "kl", "xxx"]
                 unit_error = "Please enter a valid unit(ml/l/kl) or xxx to enter a new item."
-        # if unit type has not been set yet, use default lists and error
+
         else:
+            # Get the product name in loop to only suggest xxx when at least one item has been entered
+            product_name = input("\nWhat is the name of the product? ")
+
+            # if unit type has not been set yet, use default lists and error
             full_unit = ["milligram", "gram", "kilogram", "xxx", "millilitre", "litre", "kilolitre"]
             short_unit = ["mg", "g", "kg", "xxx", "ml", "l", "kl"]
             unit_error = "Please enter a valid unit(mg/g/kg or ml/l/kl) or xxx to enter a new item."
-            # Get the product name in loop to only suggest xxx when at least one item has been entered
-            product_name = input("\nWhat is the name of the product? ")
 
         # don't allow duplicate names or blank names
         if product_name in name_list:
@@ -188,6 +191,7 @@ while True:
         while True:
             # get the original weight (amount + unit or just amount), get rid of spaces and commas
             get_item = input("Please enter the weight of the product: ").replace(" ", "").replace(",", "")
+
             # if the user doesn't input a number, or their number is negative, output error
             if get_item == "" or get_item[0] == "-":
                 print("Please enter an amount more than 0 or xxx to enter a new item")
@@ -255,6 +259,7 @@ while True:
 
         # use function to convert and print
         converted_item = unit_converter(get_unit, get_weight)
+
         # get the different variables that the function returned
         converted_weight = converted_item[0]
         converted_unit = converted_item[1]
@@ -279,7 +284,6 @@ while True:
         price_weight_string = f"{currency(price_weight)}/{converted_unit}"
 
         # Add to lists
-        # don't add exit code to name list
         name_list.append(product_name)
         weight_list.append(weight)
         converted_list.append(converted_product)
@@ -296,10 +300,12 @@ while True:
 # get recommendation
 rec_price = min(price_weight_numbers)
 rec_price_string = currency(rec_price)
+
 # if multiple items are equally the best deal, print all
 if price_weight_numbers.count(rec_price) > 1:
     rec_string = f"The following items are all equally the best deal, which is {rec_price_string} " \
                  f"per 1{converted_unit}.\n"
+
     # check what items are the best deal
     for rec_item in name_list:
         rec_place = name_list.index(rec_item)
