@@ -350,8 +350,7 @@ if price_weight_numbers.count(rec_price) > 1:
 else:
     rec_place = price_weight_numbers.index(rec_price)
     rec_name = name_list[rec_place]
-    rec_string = f"{rec_name} is the best deal, being {rec_price_string} per 1{converted_unit}, "
-    f"which is cheaper than the other products.\n"
+    rec_string = f"{rec_name} is the best deal, being {rec_price_string} per {converted_unit}. "
 
 
 # Get the date
